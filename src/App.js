@@ -1,42 +1,6 @@
 import './App.css';
 import { useState } from 'react';
 
-const PlayNumber = props => (
-  <button className="number" onClick={() => console.log('num', props.number)}>
-    {props.number}
-  </button>
-)
-
-const StarDisplay = props => (
-  <>
-    {utils.range(1,props.count).map(starId => 
-      <div key={starId} className="star" />
-    )}
-  </>
-)
-
-const StarMatch = () => {
-  const [stars] = useState(utils.random(1,9));
-  return (
-    <div className="game">
-      <div className="help">
-        Pick 1 or more numbers that sum to the number of stars
-      </div>
-      <div className="body">
-        <div className="left">
-          <StarDisplay count={stars} />
-        </div>
-        <div className="right">
-          {utils.range(1,9).map(number=> 
-            <PlayNumber key={number} number={number} /> 
-          )}
-        </div>
-      </div>
-      <div className="timer">Time Remaining: 10</div>
-    </div>
-  );
-};
-
 // Color Theme
 const colors = {
   available: 'lightgray',
@@ -75,6 +39,64 @@ const utils = {
   },
 };
 
+const PlayNumber = props => (
+  <button 
+    className="number" 
+    onClick={() => console.log('num', props.number)}
+    style={{ backgroundColor: colors[props.status]}}
+  >
+    {props.number}
+  </button>
+)
+
+const StarDisplay = props => (
+  <>
+    {utils.range(1,props.count).map(starId => 
+      <div key={starId} className="star" />
+    )}
+  </>
+)
+
+
+const StarMatch = () => {
+  const [stars] = useState(utils.random(1,9));
+  const [candidateNums, setCandidateNums] = useState([]);
+  const [availableNums, setAvailableNums] = useState(utils.range(1,9));
+
+  const candidateAreWrong = utils.sum(candidateNums) > stars;
+
+  const numberStatus = (number) => {
+    if(!availableNums.includes(number)) {
+      return 'used'
+    }
+    if(candidateNums.includes(number)) {
+      return candidateAreWrong ? 'wrong' : 'candidate';
+    }
+    return 'available'
+  }
+  return (
+    <div className="game">
+      <div className="help">
+        Pick 1 or more numbers that sum to the number of stars
+      </div>
+      <div className="body">
+        <div className="left">
+          <StarDisplay count={stars} />
+        </div>
+        <div className="right">
+          {utils.range(1,9).map(number=> 
+            <PlayNumber 
+              key={number} 
+              status={numberStatus(number)} 
+              number={number} 
+            /> 
+          )}
+        </div>
+      </div>
+      <div className="timer">Time Remaining: 10</div>
+    </div>
+  );
+};
 
 function App() {
   return (
